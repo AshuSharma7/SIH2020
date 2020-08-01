@@ -39,7 +39,10 @@ async def sun(apiModel: SunModel):
 
 @app.post("/water")
 async def water(apiModel: WaterModel):
-    imgpath = "../water/3.jpeg"
+    if(not apiModel.imageurl):
+        return {"message": "No Image url passed"}
+    os.system("wget -O image.jpg " + apiModel.imageurl)
+    imgpath = 'image.jpg'
     image = cv2.imread(imgpath)
     orig = image.copy()
     (h, w) = image.shape[:2]
