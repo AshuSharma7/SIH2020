@@ -20,6 +20,10 @@ class SunModel(BaseModel):
     longitude: float
 
 
+class WaterModel(BaseModel):
+    imageurl: str
+
+
 @app.post("/")
 async def root():
     return {"message": "dummy"}
@@ -34,7 +38,7 @@ async def sun(apiModel: SunModel):
 
 
 @app.post("/water")
-async def water():
+async def water(apiModel: WaterModel):
     imgpath = "../water/3.jpeg"
     image = cv2.imread(imgpath)
     orig = image.copy()
