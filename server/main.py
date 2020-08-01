@@ -24,3 +24,8 @@ async def sun(apiModel: SunModel):
     azimuth = get_azimuth(apiModel.latitude, apiModel.longitude, date)
     altitude = get_altitude(apiModel.latitude, apiModel.longitude, date)
     return {"azimuth": azimuth, "altitude": altitude, "zenith": 90 - altitude}
+
+
+@app.post("/water")
+async def water():
+    return {"message": "dummy"}
