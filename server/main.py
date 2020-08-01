@@ -6,4 +6,9 @@ app = FastAPI()
 
 @app.post("/")
 async def root():
-    return {"message": "dummy server"}
+    return {"message": "dummy"}
+
+
+@app.post("/sun")
+async def sun():
+    return {"message": "sun"}
