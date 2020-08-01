@@ -1,11 +1,18 @@
 from fastapi import FastAPI
 from pysolar.solar import *
 from pydantic import BaseModel
-import datetime
-
+import pandas._libs.tslibs.np_datetime
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.models import load_model
+import numpy as np
+import cv2
+import os
 
 # Instance of FastAPI class
 app = FastAPI()
+
+model = load_model('../water/model.h5')
 
 
 class SunModel(BaseModel):
@@ -28,4 +35,27 @@ async def sun(apiModel: SunModel):
 
 @app.post("/water")
 async def water():
-    return {"message": "dummy"}
+    imgpath = "../water/3.jpeg"
+    image = cv2.imread(imgpath)
+    orig = image.copy()
+    (h, w) = image.shape[:2]
+
+    img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (150, 150))
+    img = img_to_array(img)
+    img = preprocess_input(img)
+    img = np.expand_dims(img, axis=0)
+
+    (h, l, m) = model.predict(img)[0]
+
+    val = max(h, l, m)
+    if val == h:
+        label = "HIGH"
+    elif val == l:
+        label = "LOW"
+    else:
+        label = "MEDIUM"
+    color = (0, 0, 255)
+
+    label = "{}: {:.2f}%".format(label, max(h, l, m) * 100)
+    return {"message": label}
