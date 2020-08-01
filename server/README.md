@@ -24,3 +24,21 @@ Server built using Python and FastAPI to handle API requests and return requeste
     "message": "turbidity"
 }
 ```
+### **{url}/sun**
+
+> POST body
+```
+{
+    latitude: float
+    longitude: float
+}
+```
+
+> Rseponse body
+```
+{
+    "azimuth": float,
+    "zenith": float,
+    "altitude": float
+}
+```
