@@ -1,14 +1,15 @@
 from fastapi import FastAPI
 from pysolar.solar import *
 from pydantic import BaseModel
+import datetime
+
 
 # Instance of FastAPI class
 app = FastAPI()
 
 
 class SunModel(BaseModel):
-    latitude
-    float
+    latitude: float
     longitude: float
 
 
@@ -18,5 +19,8 @@ async def root():
 
 
 @app.post("/sun")
-async def sun():
-    return {"message": "sun"}
+async def sun(apiModel: SunModel):
+    date = datetime.datetime.now(tz=datetime.timezone.utc)
+    azimuth = get_azimuth(apiModel.latitude, apiModel.longitude, date)
+    altitude = get_altitude(apiModel.latitude, apiModel.longitude, date)
+    return {"azimuth": azimuth, "altitude": altitude, "zenith": 90 - altitude}
