@@ -102,7 +102,7 @@ async def turbid(turbidModel: TurbidModel):
     img_w = crop_img(img_w)
     b_w, g_w, r_w = cv2.split(img_w)
 
-    img_c = stringToRGB(turbidModel.greyImgage)
+    img_c = stringToRGB(turbidModel.greyImage)
     img_c = crop_img(img_c)
     b_c, g_c, r_c = cv2.split(img_c)
 
