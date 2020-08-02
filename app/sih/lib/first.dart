@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:location/location.dart';
 import 'package:sih/sun/click.dart';
 import 'package:sih/water/select.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,8 +10,60 @@ class SelectTurbid extends StatefulWidget {
   _SelectTurbid createState() => _SelectTurbid();
 }
 
+Location location = new Location();
+
 class _SelectTurbid extends State<SelectTurbid> {
   Position _currentPosition;
+
+  // Location
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+  LocationData _locationData;
+
+  double lat, long;
+
+  void checkLocationService() async {
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+    if (_serviceEnabled) {
+      getLocation();
+    }
+  }
+
+  void checkLocationpermission() async {
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+    if (_permissionGranted == PermissionStatus.granted) {
+      checkLocationService();
+    }
+  }
+
+  void getLocation() async {
+    _locationData = await location.getLocation();
+
+    lat = _locationData.latitude;
+    long = _locationData.longitude;
+  }
+
+//Location
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkLocationpermission();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,15 +100,16 @@ class _SelectTurbid extends State<SelectTurbid> {
           SizedBox(height: 30),
           GestureDetector(
             onTap: () async {
-              await _getCurrentLocation();
-              if (_currentPosition.latitude != null &&
-                  _currentPosition.longitude != null) {
+              if (lat == null) {
+                getLocation();
+              }
+              if (lat != null && long != null) {
                 Navigator.push(
                     context,
                     CupertinoPageRoute(
                         builder: (context) => SelectType(
-                              lat: _currentPosition.latitude,
-                              long: _currentPosition.longitude,
+                              lat: lat,
+                              long: long,
                             )));
               } else {
                 print('bbud');
@@ -84,19 +138,5 @@ class _SelectTurbid extends State<SelectTurbid> {
         ],
       ))),
     );
-  }
-
-  _getCurrentLocation() {
-    final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
-
-    geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
-        .then((Position position) {
-      setState(() {
-        _currentPosition = position;
-      });
-    }).catchError((e) {
-      print(e);
-    });
   }
 }
