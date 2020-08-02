@@ -41,15 +41,20 @@ class _SelectTurbid extends State<SelectTurbid> {
           ),
           SizedBox(height: 30),
           GestureDetector(
-            onTap: () async{
+            onTap: () async {
               await _getCurrentLocation();
-              Navigator.push(
-                  context,
-                  CupertinoPageRoute(
-                      builder: (context) => SelectType(
-                            lat: _currentPosition.latitude,
-                            long: _currentPosition.longitude,
-                          )));
+              if (_currentPosition.latitude != null &&
+                  _currentPosition.longitude != null) {
+                Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => SelectType(
+                              lat: _currentPosition.latitude,
+                              long: _currentPosition.longitude,
+                            )));
+              } else {
+                print('bbud');
+              }
             },
             child: Container(
               height: MediaQuery.of(context).size.height / 3,

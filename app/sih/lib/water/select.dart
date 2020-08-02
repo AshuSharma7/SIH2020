@@ -5,7 +5,16 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' show join;
+import 'package:camera/camera.dart';
+import 'package:sensors/sensors.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:sih/water/camera.dart';
+
+List<CameraDescription> cameras;
 
 class SelectType extends StatefulWidget {
   dynamic lat;
@@ -17,23 +26,53 @@ class SelectType extends StatefulWidget {
 }
 
 class _SelectType extends State<SelectType> {
+  bool clicked = false;
+
+  Map<dynamic, dynamic> temp;
+  void getAngle() async {
+    // checkLocationpermission();
+    String url = "http://ec2-52-71-253-148.compute-1.amazonaws.com/sun";
+    http.Response response = await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: json.encode(<String, double>{
+          "latitude": widget.lat,
+          "longitude": widget.long
+        }));
+    temp = json.decode(response.body);
+    setState(() {
+      clicked = true;
+    });
+  }
+
+  AccelerometerEvent event;
+  CameraController controller;
   File cameraFile;
   File f1;
   File f2;
   File f3;
 
-  _imageSelect(String val) async {
-    cameraFile = await ImagePicker.pickImage(source: ImageSource.camera);
-    setState(() {
-      if (val == "a") {
-        f1 = cameraFile;
-      } else if (val == "b") {
-        f2 = cameraFile;
-      } else if (val == "c") {
-        f3 = cameraFile;
-      }
-    });
+  String getY() {
+    return ((event.y * 90) / 10).ceilToDouble().toString();
   }
+
+  String getZ() {
+    return ((event.z * 90) / 10).ceilToDouble().toString();
+  }
+
+  // _imageSelect(String val) async {
+  //   cameraFile = await ImagePicker.pickImage(source: ImageSource.camera);
+  //   setState(() {
+  // if (val == "a") {
+  //   f1 = cameraFile;
+  // } else if (val == "b") {
+  //   f2 = cameraFile;
+  // } else if (val == "c") {
+  //   f3 = cameraFile;
+  // }
+  //   });
+  // }
 
   Future uploadPic(BuildContext context, File _image) async {
     String fileName = _image.path;
@@ -65,6 +104,29 @@ class _SelectType extends State<SelectType> {
     print(mod["message"]);
   }
 
+  void cameraGet() async {
+    cameras = await availableCameras();
+    controller = CameraController(cameras[0], ResolutionPreset.medium);
+    controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
+
+  @override
+  void initState() {
+    cameraGet();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,7 +144,15 @@ class _SelectType extends State<SelectType> {
                           padding: EdgeInsets.all(10),
                           child: GestureDetector(
                               onTap: () {
-                                _imageSelect("a");
+                                // _imageSelect("a");
+                                cam("a");
+                                Navigator.push(
+                                    context,
+                                    CupertinoPageRoute(
+                                        builder: (context) => GyroCamera(
+                                              lat: widget.lat,
+                                              long: widget.long,
+                                            )));
                               },
                               child: Container(
                                 height: MediaQuery.of(context).size.height / 4,
@@ -126,7 +196,8 @@ class _SelectType extends State<SelectType> {
                           padding: EdgeInsets.all(10),
                           child: GestureDetector(
                               onTap: () {
-                                _imageSelect("b");
+                                // _imageSelect("b");
+                                cam("b");
                               },
                               child: Container(
                                 height: MediaQuery.of(context).size.height / 4,
@@ -172,7 +243,8 @@ class _SelectType extends State<SelectType> {
                       padding: EdgeInsets.all(10),
                       child: GestureDetector(
                           onTap: () {
-                            _imageSelect("c");
+                            // _imageSelect("c");
+                            cam("c");
                           },
                           child: Container(
                             height: MediaQuery.of(context).size.height / 4,
@@ -283,6 +355,93 @@ class _SelectType extends State<SelectType> {
                 ))
         ],
       )),
+    );
+  }
+
+  Widget cam(String val) {
+    return Scaffold(
+      body: Container(
+        child: Stack(
+          children: [
+            !controller.value.isInitialized
+                ? Container()
+                : AspectRatio(
+                    aspectRatio: controller.value.aspectRatio,
+                    child: CameraPreview(controller)),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      getAngle();
+                    },
+                    child: Text(
+                      !clicked
+                          ? "press"
+                          : "zenith: " +
+                              temp["zenith"].toString() +
+                              "\nazimuth: " +
+                              temp["azimuth"].toString() +
+                              "\nelevation: " +
+                              temp["altitude"].toString(),
+                      style: TextStyle(color: Colors.black, fontSize: 15.0),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  GestureDetector(
+                      onTap: () {
+                        accelerometerEvents.listen((AccelerometerEvent eve) {
+                          // print(eve.y * 90 / 10);
+                          setState(() {
+                            event = eve;
+                          });
+                        });
+                      },
+                      child: Text(
+                        event == null ? "Press" : "Y: " + getY(),
+                        style: TextStyle(color: Colors.black, fontSize: 15.0),
+                      )),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.camera_alt,
+                        size: 40.0,
+                        color: Colors.black,
+                      ),
+                      onPressed: () async {
+                        try {
+                          final path = join(
+                            (await getTemporaryDirectory()).path,
+                            '${DateTime.now()}.png',
+                          );
+                          await controller.takePicture(path);
+                          setState(() {
+                            if (val == "a") {
+                              f1 = cameraFile;
+                            } else if (val == "b") {
+                              f2 = cameraFile;
+                            } else if (val == "c") {
+                              f3 = cameraFile;
+                            }
+                          });
+                        } catch (e) {
+                          print(e);
+                        }
+                      }),
+                  SizedBox(
+                    height: 30.0,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
