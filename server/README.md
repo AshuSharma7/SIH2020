@@ -42,3 +42,21 @@ Server built using Python and FastAPI to handle API requests and return requeste
     "altitude": float
 }
 ```
+
+### **{url}/turbidity**
+
+> POST body
+```
+{
+    skyImge: String(base64)
+    waterImage: String(base64)
+    greyImage: String(base64)
+}
+```
+
+> Rseponse body
+```
+{
+    turbidity: float
+}
+```
