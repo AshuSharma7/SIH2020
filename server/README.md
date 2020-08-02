@@ -14,7 +14,7 @@ Server built using Python and FastAPI to handle API requests and return requeste
 > POST body
 ```
 {
-    imageurl: String #url of image
+    imageurl: (base64 encoded image String)
 }
 ```
 
