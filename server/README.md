@@ -48,7 +48,7 @@ Server built using Python and FastAPI to handle API requests and return requeste
 > POST body
 ```
 {
-    skyImge: String(base64)
+    skyImage: String(base64)
     waterImage: String(base64)
     greyImage: String(base64)
 }
