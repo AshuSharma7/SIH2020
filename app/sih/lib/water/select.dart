@@ -31,8 +31,9 @@ class _SelectType extends State<SelectType> {
   bool clicked = false;
 
   Widget cam(String val, Map angles) {
-    return Scaffold(
-      body: Container(
+    return Scaffold(body:
+        StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+      return Container(
         child: Stack(
           children: [
             !controller.value.isInitialized
@@ -96,8 +97,8 @@ class _SelectType extends State<SelectType> {
             ),
           ],
         ),
-      ),
-    );
+      );
+    }));
   }
 
   Map<dynamic, dynamic> temp;
