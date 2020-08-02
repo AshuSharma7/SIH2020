@@ -25,7 +25,7 @@ class SunModel(BaseModel):
 
 
 class WaterModel(BaseModel):
-    imageurl: str
+    image: str
 
 
 class TurbidModel(BaseModel):
@@ -63,11 +63,11 @@ async def sun(apiModel: SunModel):
 
 @app.post("/water")
 async def water(apiModel: WaterModel):
-    if(not apiModel.imageurl):
-        return {"message": "No Image url passed"}
-    os.system("wget -O image.jpg " + apiModel.imageurl)
-    imgpath = 'image.jpg'
-    image = cv2.imread(imgpath)
+    # if(not apiModel.imageurl):
+    #     return {"message": "No Image url passed"}
+    # os.system("wget -O image.jpg " + apiModel.imageurl)
+    # imgpath = 'a.jpg'
+    image = stringToRGB(apiModel.image)
     orig = image.copy()
     (h, w) = image.shape[:2]
 
