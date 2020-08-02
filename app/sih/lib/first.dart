@@ -71,70 +71,128 @@ class _SelectTurbid extends State<SelectTurbid> {
           child: Center(
               child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          GestureDetector(
-            onTap: () {
-              Navigator.push(context,
-                  CupertinoPageRoute(builder: (context) => SunClick()));
-            },
-            child: Container(
-              height: MediaQuery.of(context).size.height / 3,
-              width: MediaQuery.of(context).size.width / 1.5,
-              decoration: BoxDecoration(
-                  color: Colors.pink,
-                  borderRadius: BorderRadius.circular(40),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey.shade400,
-                        offset: Offset(5, 5),
-                        blurRadius: 5.0,
-                        spreadRadius: 1.0)
-                  ]),
-              child: Center(
-                  child: Text(
-                "Sun Turbidity",
-                style: TextStyle(fontSize: 30, color: Colors.white),
-              )),
-            ),
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      CupertinoPageRoute(builder: (context) => SunClick()));
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 4.7,
+                  width: MediaQuery.of(context).size.width / 2.7,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Color(0xffff9966), Color(0xffff5e62)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color(0xffff5e62).withOpacity(0.3),
+                            offset: Offset(0, 4),
+                            blurRadius: 15.0,
+                            spreadRadius: 5.0)
+                      ]),
+                  child: Center(
+                      child:
+                          //      Image.asset(
+                          //   "assets/sun(1).png",
+                          //   width: 70.0,
+                          // )
+                          Text(
+                    "Sun Turbidity",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontFamily: "Gilroy"),
+                  )),
+                ),
+              ),
+              SizedBox(width: 30),
+              GestureDetector(
+                onTap: () async {
+                  if (lat == null) {
+                    getLocation();
+                  }
+                  if (lat != null && long != null) {
+                    Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => SelectType(
+                                  lat: lat,
+                                  long: long,
+                                )));
+                  } else {
+                    print('bbud');
+                  }
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 4.7,
+                  width: MediaQuery.of(context).size.width / 2.7,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Color(0xff00d2ff), Color(0xff3a7bd5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color(0xff3a7bd5).withOpacity(0.3),
+                            offset: Offset(0, 4),
+                            blurRadius: 12.0,
+                            spreadRadius: 5.0)
+                      ]),
+                  child: Center(
+                      child:
+                          //     Image.asset(
+                          //   "assets/rain-drops.png",
+                          //   width: 70.0,
+                          // )
+                          Text(
+                    "Water Turbidity",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Gilroy",
+                        color: Colors.white),
+                  )),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 30),
-          GestureDetector(
-            onTap: () async {
-              if (lat == null) {
-                getLocation();
-              }
-              if (lat != null && long != null) {
-                Navigator.push(
-                    context,
-                    CupertinoPageRoute(
-                        builder: (context) => SelectType(
-                              lat: lat,
-                              long: long,
-                            )));
-              } else {
-                print('bbud');
-              }
-            },
-            child: Container(
-              height: MediaQuery.of(context).size.height / 3,
-              width: MediaQuery.of(context).size.width / 1.5,
-              decoration: BoxDecoration(
-                  color: Colors.pink,
-                  borderRadius: BorderRadius.circular(40),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey.shade400,
-                        offset: Offset(5, 5),
-                        blurRadius: 5.0,
-                        spreadRadius: 1.0)
-                  ]),
-              child: Center(
-                  child: Text(
-                "Water Turbidity",
-                style: TextStyle(fontSize: 30, color: Colors.white),
-              )),
-            ),
+          SizedBox(
+            height: 70.0,
           ),
+          Container(
+            width: MediaQuery.of(context).size.width - 60,
+            height: 60.0,
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    colors: [Color(0xffFF5F6D), Color(0xffFFC371)],
+                    end: Alignment.bottomLeft,
+                    begin: Alignment.topRight),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                      color: Color(0xffFF5F6D).withOpacity(0.3),
+                      offset: Offset(0, 3),
+                      blurRadius: 10.0,
+                      spreadRadius: 3.0)
+                ]),
+            child: Center(
+              child: Text(
+                "About app",
+                style: TextStyle(
+                    fontSize: 20.0,
+                    fontFamily: "Gilroy",
+                    color: Colors.white70),
+              ),
+            ),
+          )
         ],
       ))),
     );
