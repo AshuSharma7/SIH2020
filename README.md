@@ -1,6 +1,24 @@
 NM370 Android Application
 ===============
 
+
+<img src="app.gif" width="230" height="408" />
+
+
+Demo Video of Our Work till Now
+
+## Problem Statement
+
+Air/Water Turbidity estimation using mobile App
+
+## Technology Stack
+
+* Flutter
+* Fast Api
+* Deep Learning
+* Image Processing
+* Python
+
 # Approach of Water Turbidity
 Like till now we have used two Approaches which are as Follows:
 
@@ -18,12 +36,13 @@ The three images required to calculate the remote sensing reflectance are:
 
 The user takes both the sky and water images 135° from the azimuth angle of the sun. Which is already provided in our App and the Values are coming from Restful Api and we are sending the Latitude and Longitude of User and the Api return us Azimuth Angle.
 
-### RestFul Api's:
+### Code for finding mean of RGB channel:
 ```objective-c
- - http://ec2-52-71-253-148.compute-1.amazonaws.com/sun
- - http://ec2-52-71-253-148.compute-1.amazonaws.com/water
- -http://ec2-52-71-253-148.compute-1.amazonaws.com/turbidity
+   Rs = np.mean(r_s) 
 
+   Rw = np.mean(r_w)
+
+   Rc = np.mean(r_c)
 ```
 
 

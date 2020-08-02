@@ -1,24 +1,6 @@
 NM370 Android Application
 ===============
 
-
-<img src="app.gif" width="230" height="408" />
-
-
-Demo Video of Our Work till Now
-
-## Problem Statement
-
-Air/Water Turbidity estimation using mobile App
-
-## Technology Stack
-
-* Flutter
-* Fast Api
-* Deep Learning
-* Image Processing
-* Python
-
 # Approach of Water Turbidity
 Like till now we have used two Approaches which are as Follows:
 
