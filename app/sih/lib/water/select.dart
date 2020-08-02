@@ -11,9 +11,6 @@ import 'package:path/path.dart' show join;
 import 'package:camera/camera.dart';
 import 'package:sensors/sensors.dart';
 
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:sih/waterValue.dart';
-
 List<CameraDescription> cameras;
 CameraController controller;
 AccelerometerEvent event;
@@ -202,11 +199,21 @@ class _SelectType extends State<SelectType> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          child: Column(
+      appBar: AppBar(
+        title: Center(
+            child: Text(
+          "SIH-2020",
+          style: TextStyle(
+              color: Colors.black, fontSize: 30, fontFamily: "Gilroy"),
+        )),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
+      body: SingleChildScrollView(
+          child: Container(
+              child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          SizedBox(height: 40),
           Column(
             children: <Widget>[
               Row(
@@ -220,7 +227,15 @@ class _SelectType extends State<SelectType> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: Text("Select Source"),
+                                      backgroundColor: Color(0xFF485563),
+                                      title: Text(
+                                        "Select Source",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 30,
+                                          fontFamily: "Josefin",
+                                        ),
+                                      ),
                                       content: Container(
                                           child: Stack(
                                         children: <Widget>[
@@ -230,7 +245,27 @@ class _SelectType extends State<SelectType> {
                                                 _imageSelect(
                                                     ImageSource.gallery, "a");
                                               },
-                                              child: Text("Gallery")),
+                                              child: Container(
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Icon(
+                                                      Icons.add_photo_alternate,
+                                                      color: Colors.white70,
+                                                      size: 30,
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Text(
+                                                      "Gallery",
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontFamily: "Poiret",
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                ),
+                                              )),
                                           Padding(
                                               padding: EdgeInsets.only(top: 40),
                                               child: GestureDetector(
@@ -244,7 +279,30 @@ class _SelectType extends State<SelectType> {
                                                                     cam("a",
                                                                         temp)));
                                                   },
-                                                  child: Text("Camera")))
+                                                  child: Container(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.camera,
+                                                          color: Colors.white70,
+                                                          size: 30,
+                                                        ),
+                                                        SizedBox(width: 10),
+                                                        Text(
+                                                          "Camera",
+                                                          style: TextStyle(
+                                                              fontSize: 20,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontFamily:
+                                                                  "Poiret",
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )))
                                         ],
                                       )),
                                     );
@@ -252,36 +310,58 @@ class _SelectType extends State<SelectType> {
                                 );
                               },
                               child: Container(
-                                height: MediaQuery.of(context).size.height / 4,
-                                width: MediaQuery.of(context).size.width / 2.4,
-                                decoration: BoxDecoration(
-                                    color: Colors.pink,
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.grey.shade400,
-                                          offset: Offset(5, 5),
-                                          blurRadius: 5.0,
-                                          spreadRadius: 1.0)
-                                    ]),
-                                child: Center(
-                                    child: Text(
-                                  "Gray Card",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 30, color: Colors.white),
-                                )),
-                              )))
+                                  height:
+                                      MediaQuery.of(context).size.height / 4,
+                                  width:
+                                      MediaQuery.of(context).size.width / 2.4,
+                                  decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                          colors: [
+                                            Color(0xff00d2ff),
+                                            Color(0xff3a7bd5)
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight),
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: Color(0xff3a7bd5)
+                                                .withOpacity(0.3),
+                                            offset: Offset(0, 4),
+                                            blurRadius: 12.0,
+                                            spreadRadius: 5.0)
+                                      ]),
+                                  child: Center(
+                                      child: Text(
+                                    "Gray Card",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 30, color: Colors.white),
+                                  )))))
                       : Padding(
                           padding: EdgeInsets.all(10),
                           child: Container(
-                            height: MediaQuery.of(context).size.height / 4,
-                            width: MediaQuery.of(context).size.width / 2.4,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(image: FileImage(f1)),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          )),
+                              height: MediaQuery.of(context).size.height / 4,
+                              width: MediaQuery.of(context).size.width / 2.4,
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 2),
+                                image: DecorationImage(image: FileImage(f1)),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    f1 = null;
+                                  });
+                                },
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 40,
+                                  ),
+                                ),
+                              ))),
                   f2 == null
                       ? Padding(
                           padding: EdgeInsets.all(10),
@@ -291,7 +371,15 @@ class _SelectType extends State<SelectType> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(
-                                      title: Text("Select Source"),
+                                      backgroundColor: Color(0xFF485563),
+                                      title: Text(
+                                        "Select Source",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 30,
+                                          fontFamily: "Josefin",
+                                        ),
+                                      ),
                                       content: Container(
                                           child: Stack(
                                         children: <Widget>[
@@ -301,7 +389,27 @@ class _SelectType extends State<SelectType> {
                                                 _imageSelect(
                                                     ImageSource.gallery, "b");
                                               },
-                                              child: Text("Gallery")),
+                                              child: Container(
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Icon(
+                                                      Icons.add_photo_alternate,
+                                                      color: Colors.white70,
+                                                      size: 30,
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Text(
+                                                      "Gallery",
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          fontFamily: "Poiret",
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                ),
+                                              )),
                                           Padding(
                                               padding: EdgeInsets.only(top: 40),
                                               child: GestureDetector(
@@ -315,7 +423,30 @@ class _SelectType extends State<SelectType> {
                                                                     cam("b",
                                                                         temp)));
                                                   },
-                                                  child: Text("Camera")))
+                                                  child: Container(
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        Icon(
+                                                          Icons.camera,
+                                                          color: Colors.white70,
+                                                          size: 30,
+                                                        ),
+                                                        SizedBox(width: 10),
+                                                        Text(
+                                                          "Camera",
+                                                          style: TextStyle(
+                                                              fontSize: 20,
+                                                              color:
+                                                                  Colors.white,
+                                                              fontFamily:
+                                                                  "Poiret",
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  )))
                                         ],
                                       )),
                                     );
@@ -327,14 +458,21 @@ class _SelectType extends State<SelectType> {
                                 height: MediaQuery.of(context).size.height / 4,
                                 width: MediaQuery.of(context).size.width / 2.4,
                                 decoration: BoxDecoration(
-                                    color: Colors.pink,
+                                    gradient: LinearGradient(
+                                        colors: [
+                                          Color(0xff00d2ff),
+                                          Color(0xff3a7bd5)
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight),
                                     borderRadius: BorderRadius.circular(10),
                                     boxShadow: [
                                       BoxShadow(
-                                          color: Colors.grey.shade400,
-                                          offset: Offset(5, 5),
-                                          blurRadius: 5.0,
-                                          spreadRadius: 1.0)
+                                          color: Color(0xff3a7bd5)
+                                              .withOpacity(0.3),
+                                          offset: Offset(0, 4),
+                                          blurRadius: 12.0,
+                                          spreadRadius: 5.0)
                                     ]),
                                 child: Center(
                                     child: Text(
@@ -347,13 +485,27 @@ class _SelectType extends State<SelectType> {
                       : Padding(
                           padding: EdgeInsets.all(10),
                           child: Container(
-                            height: MediaQuery.of(context).size.height / 4,
-                            width: MediaQuery.of(context).size.width / 2.4,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(image: FileImage(f2)),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          )),
+                              height: MediaQuery.of(context).size.height / 4,
+                              width: MediaQuery.of(context).size.width / 2.4,
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 2),
+                                image: DecorationImage(image: FileImage(f2)),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    f2 = null;
+                                  });
+                                },
+                                child: Align(
+                                  alignment: Alignment.topRight,
+                                  child: Icon(
+                                    Icons.delete,
+                                    size: 40,
+                                  ),
+                                ),
+                              ))),
                 ],
               ),
               f3 == null
@@ -365,7 +517,15 @@ class _SelectType extends State<SelectType> {
                               context: context,
                               builder: (BuildContext context) {
                                 return AlertDialog(
-                                  title: Text("Select Source"),
+                                  backgroundColor: Color(0xFF485563),
+                                  title: Text(
+                                    "Select Source",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 30,
+                                      fontFamily: "Josefin",
+                                    ),
+                                  ),
                                   content: Container(
                                       child: Stack(
                                     children: <Widget>[
@@ -375,7 +535,27 @@ class _SelectType extends State<SelectType> {
                                             _imageSelect(
                                                 ImageSource.gallery, "c");
                                           },
-                                          child: Text("Gallery")),
+                                          child: Container(
+                                            child: Row(
+                                              children: <Widget>[
+                                                Icon(
+                                                  Icons.add_photo_alternate,
+                                                  color: Colors.white70,
+                                                  size: 30,
+                                                ),
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  "Gallery",
+                                                  style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontFamily: "Poiret",
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                )
+                                              ],
+                                            ),
+                                          )),
                                       Padding(
                                           padding: EdgeInsets.only(top: 40),
                                           child: GestureDetector(
@@ -387,7 +567,27 @@ class _SelectType extends State<SelectType> {
                                                         builder: (context) =>
                                                             cam("c", temp)));
                                               },
-                                              child: Text("Camera")))
+                                              child: Container(
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    Icon(
+                                                      Icons.camera,
+                                                      color: Colors.white70,
+                                                      size: 30,
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Text(
+                                                      "Camera",
+                                                      style: TextStyle(
+                                                          fontSize: 20,
+                                                          color: Colors.white,
+                                                          fontFamily: "Poiret",
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                    )
+                                                  ],
+                                                ),
+                                              )))
                                     ],
                                   )),
                                 );
@@ -399,14 +599,20 @@ class _SelectType extends State<SelectType> {
                             height: MediaQuery.of(context).size.height / 4,
                             width: MediaQuery.of(context).size.width / 2,
                             decoration: BoxDecoration(
-                                color: Colors.pink,
+                                gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xff00d2ff),
+                                      Color(0xff3a7bd5)
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight),
                                 borderRadius: BorderRadius.circular(10),
                                 boxShadow: [
                                   BoxShadow(
-                                      color: Colors.grey.shade400,
-                                      offset: Offset(5, 5),
-                                      blurRadius: 5.0,
-                                      spreadRadius: 1.0)
+                                      color: Color(0xff3a7bd5).withOpacity(0.3),
+                                      offset: Offset(0, 4),
+                                      blurRadius: 12.0,
+                                      spreadRadius: 5.0)
                                 ]),
                             child: Center(
                                 child: Text(
@@ -419,13 +625,27 @@ class _SelectType extends State<SelectType> {
                   : Padding(
                       padding: EdgeInsets.all(10),
                       child: Container(
-                        height: MediaQuery.of(context).size.height / 4,
-                        width: MediaQuery.of(context).size.width / 2.4,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(image: FileImage(f3)),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      )),
+                          height: MediaQuery.of(context).size.height / 4,
+                          width: MediaQuery.of(context).size.width / 2.4,
+                          decoration: BoxDecoration(
+                            border: Border.all(width: 2),
+                            image: DecorationImage(image: FileImage(f3)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                f3 = null;
+                              });
+                            },
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: Icon(
+                                Icons.delete,
+                                size: 40,
+                              ),
+                            ),
+                          ))),
             ],
           ),
           SizedBox(height: 30),
@@ -435,6 +655,7 @@ class _SelectType extends State<SelectType> {
               Text(
                 "Latitude:  " + widget.lat.toString(),
                 style: TextStyle(
+                  fontFamily: "Gilroy",
                   fontSize: 30,
                 ),
               ),
@@ -442,6 +663,7 @@ class _SelectType extends State<SelectType> {
               Text(
                 "Longitude:  " + widget.long.toString(),
                 style: TextStyle(
+                  fontFamily: "Gilroy",
                   fontSize: 30,
                 ),
               ),
@@ -481,27 +703,40 @@ class _SelectType extends State<SelectType> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            Widget continueButton = FlatButton(
-                              child: Text("Ok"),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            );
                             return AlertDialog(
-                              title: Text("Turbidity Value"),
+                              backgroundColor: Color(0xFF485563),
+                              title: Text(
+                                "Final Result",
+                                style: TextStyle(
+                                  fontFamily: "Josefin",
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                ),
+                              ),
                               content: Container(
                                   child: Stack(
                                 children: <Widget>[
-                                  Text(mod["message"].toString()),
+                                  Text(
+                                    mod["message"].toString(),
+                                    style: TextStyle(
+                                      fontFamily: "Quicksand",
+                                      fontSize: 20,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                   Padding(
-                                      padding: EdgeInsets.only(top: 30),
-                                      child: Text("Turbidity Value:  " +
-                                          mod2["turbidity"].toString()))
+                                      padding: EdgeInsets.only(top: 40),
+                                      child: Text(
+                                        "Turbidity Value:  " +
+                                            mod2["turbidity"].toString(),
+                                        style: TextStyle(
+                                          fontFamily: "Quicksand",
+                                          fontSize: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ))
                                 ],
                               )),
-                              actions: [
-                                continueButton,
-                              ],
                             );
                           },
                         );
@@ -514,10 +749,13 @@ class _SelectType extends State<SelectType> {
                   child: Text(
                   "Please Select All 3 Images",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: "Quicksand"),
                 ))
         ],
-      )),
+      ))),
     );
   }
 
