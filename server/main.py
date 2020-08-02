@@ -31,7 +31,7 @@ class WaterModel(BaseModel):
 class TurbidModel(BaseModel):
     skyImage: str
     waterImage: str
-    greyImgage: str
+    greyImage: str
 
 
 def crop_img(image):
