@@ -8,6 +8,10 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import cv2
 import os
+from PIL import Image
+import cv2
+import base64
+import io
 
 # Instance of FastAPI class
 app = FastAPI()
@@ -22,6 +26,26 @@ class SunModel(BaseModel):
 
 class WaterModel(BaseModel):
     imageurl: str
+
+
+class TurbidModel(BaseModel):
+    skyImage: str
+    waterImage: str
+    greyImgage: str
+
+
+def crop_img(image):
+    y, x, s = image.shape
+    cx = x//2
+    cy = y//2
+    image_cropped = image[cy-100:cy+100, cx-100:cx+100]
+    return image_cropped
+
+
+def stringToRGB(base64_string):
+    imgdata = base64.b64decode(str(base64_string))
+    image = Image.open(io.BytesIO(imgdata))
+    return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
 
 
 @app.post("/")
@@ -66,3 +90,39 @@ async def water(apiModel: WaterModel):
 
     label = "{}: {:.2f}%".format(label, max(h, l, m) * 100)
     return {"message": label}
+
+
+@app.post("/turbidity")
+async def turbid(turbidModel: TurbidModel):
+    img_s = stringToRGB(turbidModel.skyImage)
+    img_s = crop_img(img_s)
+    b_s, g_s, r_s = cv2.split(img_s)
+
+    img_w = stringToRGB(turbidModel.waterImage)
+    img_w = crop_img(img_w)
+    b_w, g_w, r_w = cv2.split(img_w)
+
+    img_c = stringToRGB(turbidModel.greyImgage)
+    img_c = crop_img(img_c)
+    b_c, g_c, r_c = cv2.split(img_c)
+
+    Rs = np.mean(r_s)
+    # G = np.mean(g)
+    # B = np.mean(b)
+    Rw = np.mean(r_w)
+    Rc = np.mean(r_c)
+
+    S = 100
+    alpha = 1/4
+    AS = (S*alpha)
+
+    Ls = Rs/AS
+    Lw = Rw/AS
+    Lc = Rc/AS
+
+    p = 3.14159265/0.18
+
+    Rrs = (Lw-(0.028*Ls))/(p*Lc)
+
+    turbidity = (22.57*Rrs)/(0.044 - Rrs)
+    return {"turbidity": turbidity}
