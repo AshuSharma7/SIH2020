@@ -16,6 +16,7 @@ import 'package:sih/waterValue.dart';
 
 List<CameraDescription> cameras;
 CameraController controller;
+AccelerometerEvent event;
 
 class SelectType extends StatefulWidget {
   dynamic lat;
@@ -28,6 +29,76 @@ class SelectType extends StatefulWidget {
 
 class _SelectType extends State<SelectType> {
   bool clicked = false;
+
+  Widget cam(String val, Map angles) {
+    return Scaffold(
+      body: Container(
+        child: Stack(
+          children: [
+            !controller.value.isInitialized
+                ? Container()
+                : AspectRatio(
+                    aspectRatio: controller.value.aspectRatio,
+                    child: CameraPreview(controller)),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // getAngle();
+                    },
+                    child: Text(
+                      false
+                          ? "press"
+                          : "zenith: " +
+                              angles["zenith"].toString() +
+                              "\nazimuth: " +
+                              angles["azimuth"].toString() +
+                              "\nelevation: " +
+                              angles["altitude"].toString(),
+                      style: TextStyle(color: Colors.black, fontSize: 15.0),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  GestureDetector(
+                      onTap: () {
+                        accelerometerEvents.listen((AccelerometerEvent eve) {
+                          // print(eve.y * 90 / 10);
+                          setState(() {
+                            event = eve;
+                          });
+                        });
+                      },
+                      child: Text(
+                        event == null ? "Press" : "Y: " + getY(),
+                        style: TextStyle(color: Colors.black, fontSize: 15.0),
+                      )),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  IconButton(
+                      icon: Icon(
+                        Icons.camera_alt,
+                        size: 40.0,
+                        color: Colors.black,
+                      ),
+                      onPressed: () async {
+                        _onCapturePressed(context, val);
+                      }),
+                  SizedBox(
+                    height: 30.0,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Map<dynamic, dynamic> temp;
   void getAngle() async {
@@ -47,8 +118,6 @@ class _SelectType extends State<SelectType> {
     });
   }
 
-  AccelerometerEvent event;
-
   File cameraFile;
   File f1;
   File f2;
@@ -65,6 +134,7 @@ class _SelectType extends State<SelectType> {
   @override
   void initState() {
     cameraGet();
+    getAngle();
     super.initState();
   }
 
@@ -155,6 +225,7 @@ class _SelectType extends State<SelectType> {
                                         children: <Widget>[
                                           GestureDetector(
                                               onTap: () {
+                                                Navigator.pop(context);
                                                 _imageSelect(
                                                     ImageSource.gallery, "a");
                                               },
@@ -163,12 +234,14 @@ class _SelectType extends State<SelectType> {
                                               padding: EdgeInsets.only(top: 40),
                                               child: GestureDetector(
                                                   onTap: () {
+                                                    Navigator.pop(context);
                                                     Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                             builder:
                                                                 (context) =>
-                                                                    cam("a")));
+                                                                    cam("a",
+                                                                        temp)));
                                                   },
                                                   child: Text("Camera")))
                                         ],
@@ -223,6 +296,7 @@ class _SelectType extends State<SelectType> {
                                         children: <Widget>[
                                           GestureDetector(
                                               onTap: () {
+                                                Navigator.pop(context);
                                                 _imageSelect(
                                                     ImageSource.gallery, "b");
                                               },
@@ -231,12 +305,14 @@ class _SelectType extends State<SelectType> {
                                               padding: EdgeInsets.only(top: 40),
                                               child: GestureDetector(
                                                   onTap: () {
+                                                    Navigator.pop(context);
                                                     Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                             builder:
                                                                 (context) =>
-                                                                    cam("b")));
+                                                                    cam("b",
+                                                                        temp)));
                                                   },
                                                   child: Text("Camera")))
                                         ],
@@ -294,6 +370,7 @@ class _SelectType extends State<SelectType> {
                                     children: <Widget>[
                                       GestureDetector(
                                           onTap: () {
+                                            Navigator.pop(context);
                                             _imageSelect(
                                                 ImageSource.gallery, "c");
                                           },
@@ -302,11 +379,12 @@ class _SelectType extends State<SelectType> {
                                           padding: EdgeInsets.only(top: 40),
                                           child: GestureDetector(
                                               onTap: () {
+                                                Navigator.pop(context);
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
-                                                            cam("c")));
+                                                            cam("c", temp)));
                                               },
                                               child: Text("Camera")))
                                     ],
@@ -439,76 +517,6 @@ class _SelectType extends State<SelectType> {
                 ))
         ],
       )),
-    );
-  }
-
-  Widget cam(String val) {
-    return Scaffold(
-      body: Container(
-        child: Stack(
-          children: [
-            !controller.value.isInitialized
-                ? Container()
-                : AspectRatio(
-                    aspectRatio: controller.value.aspectRatio,
-                    child: CameraPreview(controller)),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      getAngle();
-                    },
-                    child: Text(
-                      !clicked
-                          ? "press"
-                          : "zenith: " +
-                              temp["zenith"].toString() +
-                              "\nazimuth: " +
-                              temp["azimuth"].toString() +
-                              "\nelevation: " +
-                              temp["altitude"].toString(),
-                      style: TextStyle(color: Colors.black, fontSize: 15.0),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  GestureDetector(
-                      onTap: () {
-                        accelerometerEvents.listen((AccelerometerEvent eve) {
-                          // print(eve.y * 90 / 10);
-                          setState(() {
-                            event = eve;
-                          });
-                        });
-                      },
-                      child: Text(
-                        event == null ? "Press" : "Y: " + getY(),
-                        style: TextStyle(color: Colors.black, fontSize: 15.0),
-                      )),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  IconButton(
-                      icon: Icon(
-                        Icons.camera_alt,
-                        size: 40.0,
-                        color: Colors.black,
-                      ),
-                      onPressed: () async {
-                        _onCapturePressed(context, val);
-                      }),
-                  SizedBox(
-                    height: 30.0,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
