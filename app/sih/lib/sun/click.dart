@@ -1,47 +1,87 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:ffi';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' show join;
+import 'dart:io';
+import 'package:location/location.dart';
 import 'package:sensors/sensors.dart';
 import 'package:camera/camera.dart';
-import 'package:path/path.dart' show join;
-import 'package:path_provider/path_provider.dart';
+import 'package:sih/waterValue.dart';
 
 List<CameraDescription> cameras;
 
-class GyroCamera extends StatefulWidget {
-  dynamic lat;
-  dynamic long;
-  GyroCamera({Key key, @required this.lat, @required this.long})
-      : super(key: key);
+class SunClick extends StatefulWidget {
   @override
-  _GyroCamera createState() => _GyroCamera();
+  _SunClick createState() => _SunClick();
 }
 
-class _GyroCamera extends State<GyroCamera> {
+Location location = new Location();
+
+class _SunClick extends State<SunClick> {
   AccelerometerEvent event;
   CameraController controller;
   Map<dynamic, dynamic> temp;
 
-  File img;
+  // Location
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+  LocationData _locationData;
+
+  double lat, long;
   bool clicked = false;
 
   void getAngle() async {
-    // checkLocationpermission();
+    checkLocationpermission();
     String url = "http://ec2-52-71-253-148.compute-1.amazonaws.com/sun";
     http.Response response = await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: json.encode(<String, double>{
-          "latitude": widget.lat,
-          "longitude": widget.long
-        }));
+        body:
+            json.encode(<String, double>{"latitude": lat, "longitude": long}));
     temp = json.decode(response.body);
     setState(() {
       clicked = true;
     });
   }
+
+  void checkLocationService() async {
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+    if (_serviceEnabled) {
+      getLocation();
+    }
+  }
+
+  void checkLocationpermission() async {
+    _permissionGranted = await location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+    if (_permissionGranted == PermissionStatus.granted) {
+      checkLocationService();
+    }
+  }
+
+  void getLocation() async {
+    _locationData = await location.getLocation();
+    setState(() {
+      lat = _locationData.latitude;
+      long = _locationData.longitude;
+    });
+  }
+
+//Location
 
   String getY() {
     return ((event.y * 90) / 10).ceilToDouble().toString();
@@ -130,20 +170,8 @@ class _GyroCamera extends State<GyroCamera> {
                         size: 40.0,
                         color: Colors.black,
                       ),
-                      onPressed: () async {
-                        try {
-                          final path = join(
-                            (await getTemporaryDirectory()).path,
-                            '${DateTime.now()}.png',
-                          );
-                          await controller.takePicture(path);
-                          setState(() {
-                            img = File(path);
-                            
-                          });
-                        } catch (e) {
-                          print(e);
-                        }
+                      onPressed: () {
+                        _onCapturePressed(context);
                       }),
                   SizedBox(
                     height: 30.0,
@@ -155,5 +183,28 @@ class _GyroCamera extends State<GyroCamera> {
         ),
       ),
     );
+  }
+
+  void _onCapturePressed(context) async {
+    try {
+      // 1
+      final path = join(
+        (await getTemporaryDirectory()).path,
+        '${DateTime.now()}.png',
+      );
+      // 2
+      await controller.takePicture(path);
+      final bytes = File(path).readAsBytesSync();
+      dynamic a = base64Encode(bytes);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WaterValue(img: a),
+        ),
+      );
+      // 3
+    } catch (e) {
+      print(e);
+    }
   }
 }

@@ -12,7 +12,7 @@ import 'package:camera/camera.dart';
 import 'package:sensors/sensors.dart';
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:sih/water/camera.dart';
+import 'package:sih/waterValue.dart';
 
 List<CameraDescription> cameras;
 
@@ -61,47 +61,53 @@ class _SelectType extends State<SelectType> {
     return ((event.z * 90) / 10).ceilToDouble().toString();
   }
 
-  // _imageSelect(String val) async {
-  //   cameraFile = await ImagePicker.pickImage(source: ImageSource.camera);
-  //   setState(() {
-  // if (val == "a") {
-  //   f1 = cameraFile;
-  // } else if (val == "b") {
-  //   f2 = cameraFile;
-  // } else if (val == "c") {
-  //   f3 = cameraFile;
-  // }
-  //   });
-  // }
+  @override
+  void initState() {
+    cameraGet();
+    super.initState();
+  }
 
-  Future uploadPic(BuildContext context, File _image) async {
-    String fileName = _image.path;
-    StorageReference firebaseStorageRef =
-        FirebaseStorage.instance.ref().child(fileName);
-    StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    final String url = await firebaseStorageRef.getDownloadURL();
-
-    print(url);
+  _imageSelect(ImageSource source, String val) async {
+    cameraFile = await ImagePicker.pickImage(source: source);
     setState(() {
-      apiCall(url);
+      if (val == "a") {
+        f1 = cameraFile;
+      } else if (val == "b") {
+        f2 = cameraFile;
+      } else if (val == "c") {
+        f3 = cameraFile;
+      }
     });
   }
 
-  dynamic mod;
+  dynamic mod, mod2;
+
   apiCall(String uri) async {
     String url = 'http://ec2-52-71-253-148.compute-1.amazonaws.com/water';
-    var body = {"imageurl": uri};
+    var body = {"image": uri};
     http.Response r = await http.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
       body: json.encode(body),
     );
-
+    print(r.body);
     setState(() {
       mod = json.decode(r.body);
     });
-    print(mod["message"]);
+  }
+
+  turbidity(String a, String b, String c) async {
+    String url = 'http://ec2-52-71-253-148.compute-1.amazonaws.com/turbidity';
+    var body = {"skyImage": a, "waterImage": b, "greyImage": c};
+    http.Response r = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(body),
+    );
+    print(r.body);
+    setState(() {
+      mod2 = json.decode(r.body);
+    });
   }
 
   void cameraGet() async {
@@ -113,12 +119,6 @@ class _SelectType extends State<SelectType> {
       }
       setState(() {});
     });
-  }
-
-  @override
-  void initState() {
-    cameraGet();
-    super.initState();
   }
 
   @override
@@ -144,15 +144,32 @@ class _SelectType extends State<SelectType> {
                           padding: EdgeInsets.all(10),
                           child: GestureDetector(
                               onTap: () {
-                                // _imageSelect("a");
-                                cam("a");
-                                Navigator.push(
-                                    context,
-                                    CupertinoPageRoute(
-                                        builder: (context) => GyroCamera(
-                                              lat: widget.lat,
-                                              long: widget.long,
-                                            )));
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("Select Source"),
+                                      content: Container(
+                                          child: Stack(
+                                        children: <Widget>[
+                                          GestureDetector(
+                                              onTap: () {
+                                                _imageSelect(
+                                                    ImageSource.gallery, "a");
+                                              },
+                                              child: Text("Gallery")),
+                                          Padding(
+                                              padding: EdgeInsets.only(top: 40),
+                                              child: GestureDetector(
+                                                  onTap: () {
+                                                    cam("a");
+                                                  },
+                                                  child: Text("Camera")))
+                                        ],
+                                      )),
+                                    );
+                                  },
+                                );
                               },
                               child: Container(
                                 height: MediaQuery.of(context).size.height / 4,
@@ -181,23 +198,47 @@ class _SelectType extends State<SelectType> {
                             height: MediaQuery.of(context).size.height / 4,
                             width: MediaQuery.of(context).size.width / 2.4,
                             decoration: BoxDecoration(
-                                image: DecorationImage(image: FileImage(f1)),
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey.shade400,
-                                      offset: Offset(5, 5),
-                                      blurRadius: 5.0,
-                                      spreadRadius: 1.0)
-                                ]),
+                              image: DecorationImage(image: FileImage(f1)),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           )),
                   f2 == null
                       ? Padding(
                           padding: EdgeInsets.all(10),
                           child: GestureDetector(
                               onTap: () {
-                                // _imageSelect("b");
-                                cam("b");
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text("Select Source"),
+                                      content: Container(
+                                          child: Stack(
+                                        children: <Widget>[
+                                          GestureDetector(
+                                              onTap: () {
+                                                _imageSelect(
+                                                    ImageSource.gallery, "b");
+                                              },
+                                              child: Text("Gallery")),
+                                          Padding(
+                                              padding: EdgeInsets.only(top: 40),
+                                              child: GestureDetector(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    cam("b")));
+                                                  },
+                                                  child: Text("Camera")))
+                                        ],
+                                      )),
+                                    );
+                                  },
+                                );
+                                // cam("b");
                               },
                               child: Container(
                                 height: MediaQuery.of(context).size.height / 4,
@@ -226,15 +267,9 @@ class _SelectType extends State<SelectType> {
                             height: MediaQuery.of(context).size.height / 4,
                             width: MediaQuery.of(context).size.width / 2.4,
                             decoration: BoxDecoration(
-                                image: DecorationImage(image: FileImage(f2)),
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Colors.grey.shade400,
-                                      offset: Offset(5, 5),
-                                      blurRadius: 5.0,
-                                      spreadRadius: 1.0)
-                                ]),
+                              image: DecorationImage(image: FileImage(f2)),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           )),
                 ],
               ),
@@ -243,8 +278,33 @@ class _SelectType extends State<SelectType> {
                       padding: EdgeInsets.all(10),
                       child: GestureDetector(
                           onTap: () {
-                            // _imageSelect("c");
-                            cam("c");
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Select Source"),
+                                  content: Container(
+                                      child: Stack(
+                                    children: <Widget>[
+                                      GestureDetector(
+                                          onTap: () {
+                                            _imageSelect(
+                                                ImageSource.gallery, "c");
+                                          },
+                                          child: Text("Gallery")),
+                                      Padding(
+                                          padding: EdgeInsets.only(top: 40),
+                                          child: GestureDetector(
+                                              onTap: () {
+                                                cam("c");
+                                              },
+                                              child: Text("Camera")))
+                                    ],
+                                  )),
+                                );
+                              },
+                            );
+                            // cam("c");
                           },
                           child: Container(
                             height: MediaQuery.of(context).size.height / 4,
@@ -273,15 +333,9 @@ class _SelectType extends State<SelectType> {
                         height: MediaQuery.of(context).size.height / 4,
                         width: MediaQuery.of(context).size.width / 2.4,
                         decoration: BoxDecoration(
-                            image: DecorationImage(image: FileImage(f3)),
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey.shade400,
-                                  offset: Offset(5, 5),
-                                  blurRadius: 5.0,
-                                  spreadRadius: 1.0)
-                            ]),
+                          image: DecorationImage(image: FileImage(f3)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       )),
             ],
           ),
@@ -323,7 +377,18 @@ class _SelectType extends State<SelectType> {
                                     Center(child: CircularProgressIndicator()));
                           },
                         );
-                        await uploadPic(context, f2);
+                        final bytes = File(f1.path).readAsBytesSync();
+                        String a = base64Encode(bytes);
+
+                        final bytes2 = File(f2.path).readAsBytesSync();
+                        String b = base64Encode(bytes2);
+
+                        final bytes3 = File(f3.path).readAsBytesSync();
+                        String c = base64Encode(bytes3);
+
+                        await apiCall(b);
+                        await turbidity(a, b, c);
+
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -335,7 +400,16 @@ class _SelectType extends State<SelectType> {
                             );
                             return AlertDialog(
                               title: Text("Turbidity Value"),
-                              content: Text(mod["message"].toString()),
+                              content: Container(
+                                  child: Stack(
+                                children: <Widget>[
+                                  Text(mod["message"].toString()),
+                                  Padding(
+                                      padding: EdgeInsets.only(top: 30),
+                                      child: Text("Turbidity Value:  " +
+                                          mod2["turbidity"].toString()))
+                                ],
+                              )),
                               actions: [
                                 continueButton,
                               ],
@@ -432,6 +506,8 @@ class _SelectType extends State<SelectType> {
                         } catch (e) {
                           print(e);
                         }
+
+                        _onCapturePressed(context);
                       }),
                   SizedBox(
                     height: 30.0,
@@ -443,5 +519,28 @@ class _SelectType extends State<SelectType> {
         ),
       ),
     );
+  }
+
+  void _onCapturePressed(context) async {
+    try {
+      // 1
+      final path = join(
+        (await getTemporaryDirectory()).path,
+        '${DateTime.now()}.png',
+      );
+      // 2
+      await controller.takePicture(path);
+      final bytes = File(path).readAsBytesSync();
+      dynamic a = base64Encode(bytes);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => WaterValue(img: a),
+        ),
+      );
+      // 3
+    } catch (e) {
+      print(e);
+    }
   }
 }

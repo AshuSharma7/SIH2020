@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sih/sun/click.dart';
 import 'package:sih/water/select.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -19,6 +20,10 @@ class _SelectTurbid extends State<SelectTurbid> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  CupertinoPageRoute(builder: (context) => SunClick()));
+            },
             child: Container(
               height: MediaQuery.of(context).size.height / 3,
               width: MediaQuery.of(context).size.width / 1.5,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sih/first.dart';
-import 'package:sih/sensor.dart';
-import 'Picker.dart';
 
 void main() => runApp(MyApp());
 
