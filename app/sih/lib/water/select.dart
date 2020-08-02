@@ -15,6 +15,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:sih/waterValue.dart';
 
 List<CameraDescription> cameras;
+CameraController controller;
 
 class SelectType extends StatefulWidget {
   dynamic lat;
@@ -47,7 +48,7 @@ class _SelectType extends State<SelectType> {
   }
 
   AccelerometerEvent event;
-  CameraController controller;
+
   File cameraFile;
   File f1;
   File f2;
@@ -162,7 +163,12 @@ class _SelectType extends State<SelectType> {
                                               padding: EdgeInsets.only(top: 40),
                                               child: GestureDetector(
                                                   onTap: () {
-                                                    cam("a");
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    cam("a")));
                                                   },
                                                   child: Text("Camera")))
                                         ],
@@ -296,7 +302,11 @@ class _SelectType extends State<SelectType> {
                                           padding: EdgeInsets.only(top: 40),
                                           child: GestureDetector(
                                               onTap: () {
-                                                cam("c");
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            cam("c")));
                                               },
                                               child: Text("Camera")))
                                     ],
@@ -488,26 +498,7 @@ class _SelectType extends State<SelectType> {
                         color: Colors.black,
                       ),
                       onPressed: () async {
-                        try {
-                          final path = join(
-                            (await getTemporaryDirectory()).path,
-                            '${DateTime.now()}.png',
-                          );
-                          await controller.takePicture(path);
-                          setState(() {
-                            if (val == "a") {
-                              f1 = cameraFile;
-                            } else if (val == "b") {
-                              f2 = cameraFile;
-                            } else if (val == "c") {
-                              f3 = cameraFile;
-                            }
-                          });
-                        } catch (e) {
-                          print(e);
-                        }
-
-                        _onCapturePressed(context);
+                        _onCapturePressed(context, val);
                       }),
                   SizedBox(
                     height: 30.0,
@@ -521,7 +512,7 @@ class _SelectType extends State<SelectType> {
     );
   }
 
-  void _onCapturePressed(context) async {
+  void _onCapturePressed(context, String s) async {
     try {
       // 1
       final path = join(
@@ -530,14 +521,18 @@ class _SelectType extends State<SelectType> {
       );
       // 2
       await controller.takePicture(path);
-      final bytes = File(path).readAsBytesSync();
-      dynamic a = base64Encode(bytes);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => WaterValue(img: a),
-        ),
-      );
+      setState(() {
+        if (s == "a") {
+          f1 = File(path);
+          Navigator.pop(context);
+        } else if (s == "b") {
+          f2 = File(path);
+          Navigator.pop(context);
+        } else if (s == "c") {
+          f3 = File(path);
+          Navigator.pop(context);
+        }
+      });
       // 3
     } catch (e) {
       print(e);
