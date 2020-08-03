@@ -157,7 +157,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                   if (lat == null) {
                     getLocation();
                   }
-                  if (lat == null && long == null) {
+                  if (lat != null && long != null) {
                     Navigator.push(
                         context,
                         CupertinoPageRoute(
