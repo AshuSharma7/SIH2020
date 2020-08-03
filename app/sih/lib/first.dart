@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
+import 'package:permission_handler/permission_handler.dart' as perm;
 import 'package:sih/sun/click.dart';
 
 import 'package:http/http.dart' as http;
@@ -28,6 +29,7 @@ class _SelectTurbid extends State<SelectTurbid> {
   // Location
   bool _serviceEnabled;
   PermissionStatus _permissionGranted;
+
   LocationData _locationData;
 
   double lat, long;
@@ -46,6 +48,7 @@ class _SelectTurbid extends State<SelectTurbid> {
   }
 
   void checkLocationpermission() async {
+    await perm.Permission.storage.request();
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();

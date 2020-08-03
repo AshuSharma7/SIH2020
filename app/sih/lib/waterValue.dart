@@ -25,11 +25,11 @@ class _WaterValue extends State<WaterValue> {
                       image: MemoryImage(base64Decode(widget.img)))),
             ),
             SizedBox(height: 10),
-            Container(
-              height: MediaQuery.of(context).size.height / 2,
-              width: 300,
-              child: FlatButton(onPressed: () {}, child: Text("Download")),
-            )
+            // Container(
+            //   height: MediaQuery.of(context).size.height / 2,
+            //   width: 300,
+            //   child: FlatButton(onPressed: () {}, child: Text("Download")),
+            // )
           ],
         ),
       ),
