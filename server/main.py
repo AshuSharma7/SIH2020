@@ -12,11 +12,12 @@ from PIL import Image
 import cv2
 import base64
 import io
+import histogram as hist
 
 # Instance of FastAPI class
 app = FastAPI()
 
-model = load_model('../water/model.h5')
+model = load_model('../water/DL/model.h5')
 
 
 class SunModel(BaseModel):
@@ -46,6 +47,12 @@ def stringToRGB(base64_string):
     imgdata = base64.b64decode(str(base64_string))
     image = Image.open(io.BytesIO(imgdata))
     return cv2.cvtColor(np.array(image), cv2.COLOR_BGR2RGB)
+
+
+def RGBTostring(name: str):
+    with open(name, "rb") as img_file:
+        baseString = base64.b64encode(img_file.read())
+    return baseString.decode('utf-8')
 
 
 @app.post("/")
@@ -95,14 +102,17 @@ async def water(apiModel: WaterModel):
 @app.post("/turbidity")
 async def turbid(turbidModel: TurbidModel):
     img_s = stringToRGB(turbidModel.skyImage)
+    hist.hist(img_s, "sky.png")
     img_s = crop_img(img_s)
     b_s, g_s, r_s = cv2.split(img_s)
 
     img_w = stringToRGB(turbidModel.waterImage)
+    hist.hist(img_w, "water.png")
     img_w = crop_img(img_w)
     b_w, g_w, r_w = cv2.split(img_w)
 
     img_c = stringToRGB(turbidModel.greyImage)
+    hist.hist(img_c, "grey.png")
     img_c = crop_img(img_c)
     b_c, g_c, r_c = cv2.split(img_c)
 
@@ -125,4 +135,4 @@ async def turbid(turbidModel: TurbidModel):
     Rrs = (Lw-(0.028*Ls))/(p*Lc)
 
     turbidity = (22.57*Rrs)/(0.044 - Rrs)
-    return {"turbidity": turbidity}
+    return {"turbidity": turbidity, "waterHist": RGBTostring("water.png"), "skyHist": RGBTostring("sky.png"), "greyHist": RGBTostring("grey.png")}
