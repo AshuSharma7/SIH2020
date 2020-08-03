@@ -57,6 +57,9 @@ Server built using Python and FastAPI to handle API requests and return requeste
 > Rseponse body
 ```
 {
-    turbidity: float
+    turbidity: float,
+    waterHist: String(base64),
+    skyHist: String(base64),
+    greyHist: String(base64)
 }
 ```
