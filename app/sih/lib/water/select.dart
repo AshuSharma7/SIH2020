@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 import 'package:camera/camera.dart';
 import 'package:sensors/sensors.dart';
+import 'package:sih/water/histogram.dart';
 
 List<CameraDescription> cameras;
 CameraController controller;
@@ -116,6 +117,12 @@ class _SelectType extends State<SelectType> {
     });
   }
 
+  TextEditingController dn_g = TextEditingController();
+  TextEditingController dn_w = TextEditingController();
+  TextEditingController dn_s = TextEditingController();
+  TextEditingController exp = TextEditingController();
+  TextEditingController iso = TextEditingController();
+
   File cameraFile;
   File f1;
   File f2;
@@ -165,9 +172,19 @@ class _SelectType extends State<SelectType> {
     });
   }
 
-  turbidity(String a, String b, String c) async {
+  turbidity(String a, String b, String c, int d, int e, int f, double g,
+      int h) async {
     String url = 'http://ec2-52-71-253-148.compute-1.amazonaws.com/turbidity';
-    var body = {"skyImage": a, "waterImage": b, "greyImage": c};
+    var body = {
+      "skyImage": a,
+      "waterImage": b,
+      "greyImage": c,
+      "DN_s": d,
+      "DN_w": e,
+      "DN_c": f,
+      "alpha": g,
+      "S": h
+    };
     http.Response r = await http.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
@@ -216,6 +233,16 @@ class _SelectType extends State<SelectType> {
         children: <Widget>[
           Column(
             children: <Widget>[
+              Container(
+                  child: Text(
+                "Please Select All 3 Images",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: "Quicksand"),
+              )),
+              SizedBox(height: 30),
               Row(
                 children: <Widget>[
                   f1 == null
@@ -361,7 +388,8 @@ class _SelectType extends State<SelectType> {
                                     size: 40,
                                   ),
                                 ),
-                              ))),
+                              )),
+                        ),
                   f2 == null
                       ? Padding(
                           padding: EdgeInsets.all(10),
@@ -648,6 +676,82 @@ class _SelectType extends State<SelectType> {
                           ))),
             ],
           ),
+          SizedBox(height: 40),
+          Container(
+            child: Column(
+              children: <Widget>[
+                Padding(
+                    padding: EdgeInsets.only(left: 30, right: 30),
+                    child: TextField(
+                      controller: dn_g,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "DN of Gray Card",
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(25.0),
+                          borderSide: new BorderSide(),
+                        ),
+                      ),
+                    )),
+                SizedBox(height: 10),
+                Padding(
+                    padding: EdgeInsets.only(left: 30, right: 30),
+                    child: TextField(
+                      controller: dn_w,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "DN of Water",
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(25.0),
+                          borderSide: new BorderSide(),
+                        ),
+                      ),
+                    )),
+                SizedBox(height: 10),
+                Padding(
+                    padding: EdgeInsets.only(left: 30, right: 30),
+                    child: TextField(
+                      controller: dn_s,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "DN of Sun",
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(25.0),
+                          borderSide: new BorderSide(),
+                        ),
+                      ),
+                    )),
+                SizedBox(height: 10),
+                Padding(
+                    padding: EdgeInsets.only(left: 30, right: 30),
+                    child: TextField(
+                      controller: iso,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "ISO Value",
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(25.0),
+                          borderSide: new BorderSide(),
+                        ),
+                      ),
+                    )),
+                SizedBox(height: 10),
+                Padding(
+                    padding: EdgeInsets.only(left: 30, right: 30),
+                    child: TextField(
+                      controller: exp,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: "Exposure Time",
+                        border: new OutlineInputBorder(
+                          borderRadius: new BorderRadius.circular(25.0),
+                          borderSide: new BorderSide(),
+                        ),
+                      ),
+                    )),
+              ],
+            ),
+          ),
           SizedBox(height: 30),
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -669,7 +773,7 @@ class _SelectType extends State<SelectType> {
               ),
             ],
           ),
-          SizedBox(height: 50),
+          SizedBox(height: 20),
           f1 != null && f2 != null && f3 != null
               ? Container(
                   width: MediaQuery.of(context).size.width / 2,
@@ -678,16 +782,6 @@ class _SelectType extends State<SelectType> {
                       borderRadius: BorderRadius.circular(30)),
                   child: FlatButton(
                       onPressed: () async {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                                content:
-                                    Center(child: CircularProgressIndicator()));
-                          },
-                        );
                         final bytes = File(f1.path).readAsBytesSync();
                         String a = base64Encode(bytes);
 
@@ -696,17 +790,30 @@ class _SelectType extends State<SelectType> {
 
                         final bytes3 = File(f3.path).readAsBytesSync();
                         String c = base64Encode(bytes3);
-
-                        await apiCall(b);
-                        await turbidity(a, b, c);
-
+                        var g = int.parse(dn_g.text);
+                        var w = int.parse(dn_w.text);
+                        var s = int.parse(dn_s.text);
+                        var i = int.parse(iso.text);
+                        double dd = double.parse(exp.text);
+                        Widget nav = FlatButton(
+                          child: Text("Plot Histogram"),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HistogramWater(
+                                        gray: mod2["greyHist"],
+                                        water: mod2["waterHist"],
+                                        sky: mod2["skyHist"])));
+                          },
+                        );
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
                               backgroundColor: Color(0xFF485563),
                               title: Text(
-                                "Final Result",
+                                "Select Approach",
                                 style: TextStyle(
                                   fontFamily: "Josefin",
                                   fontSize: 30,
@@ -716,25 +823,206 @@ class _SelectType extends State<SelectType> {
                               content: Container(
                                   child: Stack(
                                 children: <Widget>[
-                                  Text(
-                                    mod["message"].toString(),
-                                    style: TextStyle(
-                                      fontFamily: "Quicksand",
-                                      fontSize: 20,
-                                      color: Colors.white,
-                                    ),
-                                  ),
+                                  GestureDetector(
+                                      onTap: () {},
+                                      child: Container(
+                                        child: FlatButton(
+                                            onPressed: () async {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                      backgroundColor:
+                                                          Colors.transparent,
+                                                      elevation: 0,
+                                                      content: Center(
+                                                          child:
+                                                              CircularProgressIndicator()));
+                                                },
+                                              );
+                                              await apiCall(b);
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    backgroundColor:
+                                                        Color(0xFF485563),
+                                                    title: Text(
+                                                      "Final Result",
+                                                      style: TextStyle(
+                                                        fontFamily: "Josefin",
+                                                        fontSize: 30,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    content: Container(
+                                                        child: Stack(
+                                                      children: <Widget>[
+                                                        Text(
+                                                          mod["message"]
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                "Quicksand",
+                                                            fontSize: 20,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    )),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Text("Dl Approach")),
+                                      )),
                                   Padding(
                                       padding: EdgeInsets.only(top: 40),
-                                      child: Text(
-                                        "Turbidity Value:  " +
-                                            mod2["turbidity"].toString(),
-                                        style: TextStyle(
-                                          fontFamily: "Quicksand",
-                                          fontSize: 20,
-                                          color: Colors.white,
-                                        ),
-                                      ))
+                                      child: GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            child: FlatButton(
+                                                onPressed: () async {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          elevation: 0,
+                                                          content: Center(
+                                                              child:
+                                                                  CircularProgressIndicator()));
+                                                    },
+                                                  );
+                                                  await turbidity(
+                                                      a, b, c, g, w, s, dd, i);
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        backgroundColor:
+                                                            Color(0xFF485563),
+                                                        title: Text(
+                                                          "Final Result",
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                "Josefin",
+                                                            fontSize: 30,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        content: Container(
+                                                            child: Stack(
+                                                          children: <Widget>[
+                                                            Text(
+                                                              "Turbidity Value:  " +
+                                                                  mod2["turbidity"]
+                                                                      .toString(),
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "Quicksand",
+                                                                fontSize: 20,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            )
+                                                          ],
+                                                        )),
+                                                        actions: <Widget>[nav],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: Text("RSR Approach")),
+                                          ))),
+                                  Padding(
+                                      padding: EdgeInsets.only(top: 80),
+                                      child: GestureDetector(
+                                          onTap: () {},
+                                          child: Container(
+                                            child: FlatButton(
+                                                onPressed: () async {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                          backgroundColor:
+                                                              Colors
+                                                                  .transparent,
+                                                          elevation: 0,
+                                                          content: Center(
+                                                              child:
+                                                                  CircularProgressIndicator()));
+                                                    },
+                                                  );
+                                                  await apiCall(b);
+                                                  await turbidity(
+                                                      a, b, c, g, w, s, dd, i);
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        backgroundColor:
+                                                            Color(0xFF485563),
+                                                        title: Text(
+                                                          "Final Result",
+                                                          style: TextStyle(
+                                                            fontFamily:
+                                                                "Josefin",
+                                                            fontSize: 30,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        content: Container(
+                                                            child: Stack(
+                                                          children: <Widget>[
+                                                            Text(
+                                                              mod["message"]
+                                                                  .toString(),
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "Quicksand",
+                                                                fontSize: 20,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
+                                                            Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top:
+                                                                            40),
+                                                                child: Text(
+                                                                  "Turbidity Value:  " +
+                                                                      mod2["turbidity"]
+                                                                          .toString(),
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontFamily:
+                                                                        "Quicksand",
+                                                                    fontSize:
+                                                                        20,
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ))
+                                                          ],
+                                                        )),
+                                                        actions: <Widget>[nav],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: Text("Both Approach")),
+                                          )))
                                 ],
                               )),
                             );
@@ -745,15 +1033,7 @@ class _SelectType extends State<SelectType> {
                         "Submit",
                         style: TextStyle(fontSize: 20),
                       )))
-              : Container(
-                  child: Text(
-                  "Please Select All 3 Images",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: "Quicksand"),
-                ))
+              : SizedBox(height: 0)
         ],
       ))),
     );

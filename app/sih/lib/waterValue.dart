@@ -14,11 +14,18 @@ class _WaterValue extends State<WaterValue> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        height: 300,
-        width: 300,
-        decoration: BoxDecoration(
-            image:
-                DecorationImage(image: MemoryImage(base64Decode(widget.img)))),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              height: MediaQuery.of(context).size.height/2,
+              width: 300,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: MemoryImage(base64Decode(widget.img)))),
+            )
+          ],
+        ),
       ),
     );
   }

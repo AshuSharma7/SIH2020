@@ -11,8 +11,11 @@ import 'package:camera/camera.dart';
 import 'package:sih/waterValue.dart';
 
 List<CameraDescription> cameras;
+CameraController controller;
 
 class SunClick extends StatefulWidget {
+  Map<dynamic, dynamic> temp;
+  SunClick({Key key, @required this.temp}) : super(key: key);
   @override
   _SunClick createState() => _SunClick();
 }
@@ -21,8 +24,6 @@ Location location = new Location();
 
 class _SunClick extends State<SunClick> {
   AccelerometerEvent event;
-  CameraController controller;
-  Map<dynamic, dynamic> temp;
 
   // Location
   bool _serviceEnabled;
@@ -30,22 +31,6 @@ class _SunClick extends State<SunClick> {
   LocationData _locationData;
 
   double lat, long;
-  bool clicked = false;
-
-  void getAngle() async {
-    checkLocationpermission();
-    String url = "http://ec2-52-71-253-148.compute-1.amazonaws.com/sun";
-    http.Response response = await http.post(url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body:
-            json.encode(<String, double>{"latitude": lat, "longitude": long}));
-    temp = json.decode(response.body);
-    setState(() {
-      clicked = true;
-    });
-  }
 
   void checkLocationService() async {
     _serviceEnabled = await location.serviceEnabled();
@@ -130,18 +115,16 @@ class _SunClick extends State<SunClick> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      getAngle();
-                    },
+                    onTap: () {},
                     child: Text(
-                      !clicked
+                      false
                           ? "press"
                           : "zenith: " +
-                              temp["zenith"].toString() +
+                              widget.temp["zenith"].toString() +
                               "\nazimuth: " +
-                              temp["azimuth"].toString() +
+                              widget.temp["azimuth"].toString() +
                               "\nelevation: " +
-                              temp["altitude"].toString(),
+                              widget.temp["altitude"].toString(),
                       style: TextStyle(color: Colors.black, fontSize: 15.0),
                     ),
                   ),

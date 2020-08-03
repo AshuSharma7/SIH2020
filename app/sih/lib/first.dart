@@ -2,8 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:sih/sun/click.dart';
+
+import 'package:http/http.dart' as http;
+
+import 'package:camera/camera.dart';
+import 'dart:convert';
 import 'package:sih/water/select.dart';
 import 'package:geolocator/geolocator.dart';
+
+Map<dynamic, dynamic> temp;
+
+bool clicked = false;
 
 class SelectTurbid extends StatefulWidget {
   @override
@@ -13,6 +22,27 @@ class SelectTurbid extends StatefulWidget {
 Location location = new Location();
 
 class _SelectTurbid extends State<SelectTurbid> {
+  void getAngle() async {
+    checkLocationpermission();
+    String url = "http://ec2-52-71-253-148.compute-1.amazonaws.com/sun";
+    http.Response response = await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body:
+            json.encode(<String, double>{"latitude": lat, "longitude": long}));
+    temp = json.decode(response.body);
+    setState(() {
+      clicked = true;
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+              builder: (context) => SunClick(
+                    temp: temp,
+                  )));
+    });
+  }
+
   Position _currentPosition;
 
   // Location
@@ -67,6 +97,16 @@ class _SelectTurbid extends State<SelectTurbid> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Center(
+            child: Text(
+          "SIH-2020",
+          style: TextStyle(
+              color: Colors.black, fontSize: 30, fontFamily: "Gilroy"),
+        )),
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+      ),
       body: Container(
           child: Center(
               child: Column(
@@ -77,8 +117,7 @@ class _SelectTurbid extends State<SelectTurbid> {
             children: <Widget>[
               GestureDetector(
                 onTap: () {
-                  Navigator.push(context,
-                      CupertinoPageRoute(builder: (context) => SunClick()));
+                  getAngle();
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 4.7,
@@ -118,7 +157,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                   if (lat == null) {
                     getLocation();
                   }
-                  if (lat != null && long != null) {
+                  if (lat == null && long == null) {
                     Navigator.push(
                         context,
                         CupertinoPageRoute(
