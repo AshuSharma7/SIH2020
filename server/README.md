@@ -68,3 +68,36 @@ Server built using Python and FastAPI to handle API requests and return requeste
     greyHist: String(base64)
 }
 ```
+
+### **{url}/air**
+
+> POST body
+```
+{
+    zenith1: float
+    zenith2: float
+    zenith3: float
+    zenith4: float
+    zenith5: float
+    image1: String(base64)
+    image2: String(base64)
+    image3: String(base64)
+    image4: String(base64)
+    image5: String(base64)
+}
+```
+
+> Rseponse body
+```
+{
+    RedChannelAlpha: float
+    GreenChannelAlpha: float
+    BlueChannelAlpha: float
+    OpticalDepthRed: float
+    OpticalDepthGreen: float
+    OpticalDepthBlue: float
+    red: String(base64)
+    green: String(base64)
+    blue: String(base64)
+}
+```
