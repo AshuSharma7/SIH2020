@@ -51,6 +51,11 @@ Server built using Python and FastAPI to handle API requests and return requeste
     skyImage: String(base64)
     waterImage: String(base64)
     greyImage: String(base64)
+    DN_s: int
+    DN_w: int
+    DN_c: int
+    alpha: float
+    S: int
 }
 ```
 
