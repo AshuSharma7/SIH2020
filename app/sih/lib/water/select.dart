@@ -102,7 +102,7 @@ class _SelectType extends State<SelectType> {
   Map<dynamic, dynamic> temp;
   void getAngle() async {
     // checkLocationpermission();
-    String url = "http://ec2-52-71-253-148.compute-1.amazonaws.com/sun";
+    String url = "http://ec2-18-215-246-9.compute-1.amazonaws.com/sun";
     http.Response response = await http.post(url,
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -159,7 +159,7 @@ class _SelectType extends State<SelectType> {
   dynamic mod, mod2;
 
   apiCall(String uri) async {
-    String url = 'http://ec2-52-71-253-148.compute-1.amazonaws.com/water';
+    String url = 'http://ec2-18-215-246-9.compute-1.amazonaws.com/water';
     var body = {"image": uri};
     http.Response r = await http.post(
       Uri.parse(url),
@@ -174,7 +174,7 @@ class _SelectType extends State<SelectType> {
 
   turbidity(String a, String b, String c, int d, int e, int f, double g,
       int h) async {
-    String url = 'http://ec2-52-71-253-148.compute-1.amazonaws.com/turbidity';
+    String url = 'http://ec2-18-215-246-9.compute-1.amazonaws.com/turbidity';
     var body = {
       "skyImage": a,
       "waterImage": b,

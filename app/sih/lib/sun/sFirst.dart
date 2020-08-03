@@ -6,7 +6,6 @@ import 'package:sih/sun/click.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:camera/camera.dart';
-import 'package:sih/sun/sFirst.dart';
 import 'dart:convert';
 import 'package:sih/water/select.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,14 +14,35 @@ Map<dynamic, dynamic> temp;
 
 bool clicked = false;
 
-class SelectTurbid extends StatefulWidget {
+class SunFirst extends StatefulWidget {
   @override
-  _SelectTurbid createState() => _SelectTurbid();
+  _SunFirst createState() => _SunFirst();
 }
 
 Location location = new Location();
 
-class _SelectTurbid extends State<SelectTurbid> {
+class _SunFirst extends State<SunFirst> {
+  void getAngle() async {
+    // checkLocationpermission();
+    String url = "http://ec2-18-215-246-9.compute-1.amazonaws.com/sun";
+    http.Response response = await http.post(url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body:
+            json.encode(<String, double>{"latitude": lat, "longitude": long}));
+    temp = json.decode(response.body);
+    setState(() {
+      clicked = true;
+      Navigator.push(
+          context,
+          CupertinoPageRoute(
+              builder: (context) => SunClick(
+                    temp: temp,
+                  )));
+    });
+  }
+
   Position _currentPosition;
 
   // Location
@@ -97,9 +117,7 @@ class _SelectTurbid extends State<SelectTurbid> {
             children: <Widget>[
               GestureDetector(
                 onTap: () {
-                  // getAngle();
-                  Navigator.push(context,
-                      CupertinoPageRoute(builder: (context) => SunFirst()));
+                  getAngle();
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 4.7,
@@ -124,7 +142,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                           //   width: 70.0,
                           // )
                           Text(
-                    "Sun Turbidity",
+                    "Take Image",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 20,
@@ -140,13 +158,13 @@ class _SelectTurbid extends State<SelectTurbid> {
                     getLocation();
                   }
                   if (lat != null && long != null) {
-                    Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (context) => SelectType(
-                                  lat: lat,
-                                  long: long,
-                                )));
+                    // Navigator.push(
+                    //     context,
+                    //     CupertinoPageRoute(
+                    //         builder: (context) => SelectType(
+                    //               lat: lat,
+                    //               long: long,
+                    //             )));
                   } else {
                     print('bbud');
                   }
@@ -174,7 +192,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                           //   width: 70.0,
                           // )
                           Text(
-                    "Water Turbidity",
+                    "Upload Image",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 20,
@@ -185,35 +203,6 @@ class _SelectTurbid extends State<SelectTurbid> {
               ),
             ],
           ),
-          SizedBox(
-            height: 70.0,
-          ),
-          Container(
-            width: MediaQuery.of(context).size.width - 60,
-            height: 60.0,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    colors: [Color(0xffFF5F6D), Color(0xffFFC371)],
-                    end: Alignment.bottomLeft,
-                    begin: Alignment.topRight),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                      color: Color(0xffFF5F6D).withOpacity(0.3),
-                      offset: Offset(0, 3),
-                      blurRadius: 10.0,
-                      spreadRadius: 3.0)
-                ]),
-            child: Center(
-              child: Text(
-                "About app",
-                style: TextStyle(
-                    fontSize: 20.0,
-                    fontFamily: "Gilroy",
-                    color: Colors.white70),
-              ),
-            ),
-          )
         ],
       ))),
     );
