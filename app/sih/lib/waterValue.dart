@@ -18,11 +18,17 @@ class _WaterValue extends State<WaterValue> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              height: MediaQuery.of(context).size.height/2,
+              height: MediaQuery.of(context).size.height / 3,
               width: 300,
               decoration: BoxDecoration(
                   image: DecorationImage(
                       image: MemoryImage(base64Decode(widget.img)))),
+            ),
+            SizedBox(height: 10),
+            Container(
+              height: MediaQuery.of(context).size.height / 2,
+              width: 300,
+              child: FlatButton(onPressed: () {}, child: Text("Download")),
             )
           ],
         ),

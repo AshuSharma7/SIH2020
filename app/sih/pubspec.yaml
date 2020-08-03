@@ -31,6 +31,7 @@ dependencies:
   geolocator:
   sensors:
   permission_handler:
+  file_picker:
   camera:
   path_provider:
   path:

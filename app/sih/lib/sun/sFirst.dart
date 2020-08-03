@@ -1,18 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:sih/sun/click.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 
+import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:sih/sun/upload.dart';
 import 'dart:convert';
 import 'package:sih/water/select.dart';
 import 'package:geolocator/geolocator.dart';
 
 Map<dynamic, dynamic> temp;
-
+File file;
 bool clicked = false;
+List<String> image = [];
 
 class SunFirst extends StatefulWidget {
   @override
@@ -20,8 +25,53 @@ class SunFirst extends StatefulWidget {
 }
 
 Location location = new Location();
+dynamic mod;
 
 class _SunFirst extends State<SunFirst> {
+  getApi(String uri) async {
+    String url = 'http://ec2-18-215-246-9.compute-1.amazonaws.com/water';
+    var body = {"image": uri};
+    http.Response r = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(body),
+    );
+    print(r.body);
+    setState(() {
+      mod = json.decode(r.body);
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color(0xFF485563),
+            title: Text(
+              "Final Result",
+              style: TextStyle(
+                fontFamily: "Josefin",
+                fontSize: 30,
+                color: Colors.white,
+              ),
+            ),
+            content: Container(
+                child: Stack(
+              children: <Widget>[
+                Text(
+                  mod["message"].toString(),
+                  style: TextStyle(
+                    fontFamily: "Quicksand",
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            )),
+          );
+        },
+      );
+    });
+  }
+
   void getAngle() async {
     // checkLocationpermission();
     String url = "http://ec2-18-215-246-9.compute-1.amazonaws.com/sun";
@@ -115,59 +165,23 @@ class _SunFirst extends State<SunFirst> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              GestureDetector(
-                onTap: () {
-                  getAngle();
-                },
-                child: Container(
-                  height: MediaQuery.of(context).size.height / 4.7,
-                  width: MediaQuery.of(context).size.width / 2.7,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Color(0xffff9966), Color(0xffff5e62)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Color(0xffff5e62).withOpacity(0.3),
-                            offset: Offset(0, 4),
-                            blurRadius: 15.0,
-                            spreadRadius: 5.0)
-                      ]),
-                  child: Center(
-                      child:
-                          //      Image.asset(
-                          //   "assets/sun(1).png",
-                          //   width: 70.0,
-                          // )
-                          Text(
-                    "Take Image",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                        fontFamily: "Gilroy"),
-                  )),
-                ),
-              ),
               SizedBox(width: 30),
               GestureDetector(
                 onTap: () async {
-                  if (lat == null) {
-                    getLocation();
-                  }
-                  if (lat != null && long != null) {
-                    // Navigator.push(
-                    //     context,
-                    //     CupertinoPageRoute(
-                    //         builder: (context) => SelectType(
-                    //               lat: lat,
-                    //               long: long,
-                    //             )));
-                  } else {
-                    print('bbud');
-                  }
+                  file =
+                      await ImagePicker.pickImage(source: ImageSource.camera);
+                  final bytes2 = File(file.path).readAsBytesSync();
+                  String b = base64Encode(bytes2);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                          content: Center(child: CircularProgressIndicator()));
+                    },
+                  );
+                  getApi(b);
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 4.7,
@@ -186,12 +200,7 @@ class _SunFirst extends State<SunFirst> {
                             spreadRadius: 5.0)
                       ]),
                   child: Center(
-                      child:
-                          //     Image.asset(
-                          //   "assets/rain-drops.png",
-                          //   width: 70.0,
-                          // )
-                          Text(
+                      child: Text(
                     "Upload Image",
                     textAlign: TextAlign.center,
                     style: TextStyle(
