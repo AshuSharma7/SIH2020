@@ -16,6 +16,7 @@ import 'package:geolocator/geolocator.dart';
 
 Map<dynamic, dynamic> temp;
 File file;
+
 bool clicked = false;
 List<String> image = [];
 
@@ -28,9 +29,9 @@ Location location = new Location();
 dynamic mod;
 
 class _SunFirst extends State<SunFirst> {
-  getApi(String uri) async {
-    String url = 'http://ec2-18-215-246-9.compute-1.amazonaws.com/water';
-    var body = {"image": uri};
+  getApi(String uri, dynamic lat, dynamic long) async {
+    String url = 'http://ec2-18-215-246-9.compute-1.amazonaws.com/sunTurbid';
+    var body = {"image": uri, "lat": lat, "longitude": long};
     http.Response r = await http.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
@@ -57,7 +58,7 @@ class _SunFirst extends State<SunFirst> {
                 child: Stack(
               children: <Widget>[
                 Text(
-                  mod["message"].toString(),
+                  mod["solution"].toString(),
                   style: TextStyle(
                     fontFamily: "Quicksand",
                     fontSize: 20,
@@ -181,7 +182,7 @@ class _SunFirst extends State<SunFirst> {
                           content: Center(child: CircularProgressIndicator()));
                     },
                   );
-                  getApi(b);
+                  getApi(b, lat, long);
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 4.7,
