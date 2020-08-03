@@ -21,6 +21,9 @@ bool clicked = false;
 List<String> image = [];
 
 class SunFirst extends StatefulWidget {
+  dynamic latu, longu;
+  SunFirst({Key key, @required this.latu, @required this.longu})
+      : super(key: key);
   @override
   _SunFirst createState() => _SunFirst();
 }
@@ -29,9 +32,9 @@ Location location = new Location();
 dynamic mod;
 
 class _SunFirst extends State<SunFirst> {
-  getApi(String uri, dynamic lat, dynamic long) async {
+  getApi(String uri, double lats, double lon) async {
     String url = 'http://ec2-18-215-246-9.compute-1.amazonaws.com/sunTurbid';
-    var body = {"image": uri, "lat": lat, "longitude": long};
+    var body = {"image": uri, "lat": lats, "longitude": lon};
     http.Response r = await http.post(
       Uri.parse(url),
       headers: {"Content-Type": "application/json"},
@@ -40,36 +43,6 @@ class _SunFirst extends State<SunFirst> {
     print(r.body);
     setState(() {
       mod = json.decode(r.body);
-
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Color(0xFF485563),
-            title: Text(
-              "Final Result",
-              style: TextStyle(
-                fontFamily: "Josefin",
-                fontSize: 30,
-                color: Colors.white,
-              ),
-            ),
-            content: Container(
-                child: Stack(
-              children: <Widget>[
-                Text(
-                  mod["solution"].toString(),
-                  style: TextStyle(
-                    fontFamily: "Quicksand",
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            )),
-          );
-        },
-      );
     });
   }
 
@@ -182,7 +155,36 @@ class _SunFirst extends State<SunFirst> {
                           content: Center(child: CircularProgressIndicator()));
                     },
                   );
-                  getApi(b, lat, long);
+                  await getApi(b, widget.latu, widget.longu);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        backgroundColor: Color(0xFF485563),
+                        title: Text(
+                          "Final Result",
+                          style: TextStyle(
+                            fontFamily: "Josefin",
+                            fontSize: 30,
+                            color: Colors.white,
+                          ),
+                        ),
+                        content: Container(
+                            child: Stack(
+                          children: <Widget>[
+                            Text(
+                              mod.toString(),
+                              style: TextStyle(
+                                fontFamily: "Quicksand",
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        )),
+                      );
+                    },
+                  );
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 4.7,
@@ -203,6 +205,38 @@ class _SunFirst extends State<SunFirst> {
                   child: Center(
                       child: Text(
                     "Upload Image",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Gilroy",
+                        color: Colors.white),
+                  )),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => UploadZeinth()));
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 4.7,
+                  width: MediaQuery.of(context).size.width / 2.7,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Color(0xff00d2ff), Color(0xff3a7bd5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color(0xff3a7bd5).withOpacity(0.3),
+                            offset: Offset(0, 4),
+                            blurRadius: 12.0,
+                            spreadRadius: 5.0)
+                      ]),
+                  child: Center(
+                      child: Text(
+                    "Upload Images",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 20,

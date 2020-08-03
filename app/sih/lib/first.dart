@@ -1,13 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
-import 'package:sih/sun/click.dart';
-
-import 'package:http/http.dart' as http;
-
-import 'package:camera/camera.dart';
 import 'package:sih/sun/sFirst.dart';
-import 'dart:convert';
 import 'package:sih/water/select.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -97,9 +91,11 @@ class _SelectTurbid extends State<SelectTurbid> {
             children: <Widget>[
               GestureDetector(
                 onTap: () {
-                  // getAngle();
-                  Navigator.push(context,
-                      CupertinoPageRoute(builder: (context) => SunFirst()));
+                  Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                          builder: (context) =>
+                              SunFirst(latu: lat, longu: long)));
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 4.7,
@@ -118,12 +114,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                             spreadRadius: 5.0)
                       ]),
                   child: Center(
-                      child:
-                          //      Image.asset(
-                          //   "assets/sun(1).png",
-                          //   width: 70.0,
-                          // )
-                          Text(
+                      child: Text(
                     "Sun Turbidity",
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -139,7 +130,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                   if (lat == null) {
                     getLocation();
                   }
-                  if (lat != null && long != null) {
+                  if (lat == null && long == null) {
                     Navigator.push(
                         context,
                         CupertinoPageRoute(
@@ -168,12 +159,7 @@ class _SelectTurbid extends State<SelectTurbid> {
                             spreadRadius: 5.0)
                       ]),
                   child: Center(
-                      child:
-                          //     Image.asset(
-                          //   "assets/rain-drops.png",
-                          //   width: 70.0,
-                          // )
-                          Text(
+                      child: Text(
                     "Water Turbidity",
                     textAlign: TextAlign.center,
                     style: TextStyle(
