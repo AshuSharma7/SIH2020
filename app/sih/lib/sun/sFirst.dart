@@ -139,6 +139,37 @@ class _SunFirst extends State<SunFirst> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              GestureDetector(
+                onTap: () async {
+                  getAngle();
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 4.7,
+                  width: MediaQuery.of(context).size.width / 2.7,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Color(0xff00d2ff), Color(0xff3a7bd5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color(0xff3a7bd5).withOpacity(0.3),
+                            offset: Offset(0, 4),
+                            blurRadius: 12.0,
+                            spreadRadius: 5.0)
+                      ]),
+                  child: Center(
+                      child: Text(
+                    "Take Images",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: "Gilroy",
+                        color: Colors.white),
+                  )),
+                ),
+              ),
               SizedBox(width: 30),
               GestureDetector(
                 onTap: () async {

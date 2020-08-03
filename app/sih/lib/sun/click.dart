@@ -172,8 +172,8 @@ class _SunClick extends State<SunClick> {
     try {
       // 1
       final path = join(
-        (await getTemporaryDirectory()).path,
-        '${DateTime.now()}.png',
+        "/storage/emulated/0/",
+        widget.temp["zenith"].toString() + ".png",
       );
       // 2
       await controller.takePicture(path);
