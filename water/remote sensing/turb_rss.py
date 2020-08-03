@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 import cv2
 import numpy as np
 
@@ -12,6 +11,23 @@ def crop_img(image):
     cy = y//2
     image_cropped = image[cy-100:cy+100, cx-100:cx+100]
     return image_cropped
+	
+def mean(r):
+    return np.mean(r)
+	
+def radiance(DN,alpha=1/4,S=100):
+    L = DN/(S*alpha)
+    return L
+	
+def reflectance(Ls,Lw,Lc):
+    p = 3.14159265/0.18 
+    Rrs= (Lw-(0.028*Ls))/(p*Lc)
+    return Rrs
+    
+def turbidity(Rrs):
+    turb = (22.57*Rrs)/(0.044 - Rrs)
+    return turb
+	
 
 img_s = cv2.imread("sun.jpg")
 img_s = crop_img(img_s)
@@ -26,29 +42,31 @@ img_c = crop_img(img_c)
 b_c,g_c,r_c = cv2.split(img_c)
 
 
-Rs = np.mean(r_s)
-# G = np.mean(g)
-# B = np.mean(b)
-Rw = np.mean(r_w)
-Rc = np.mean(r_c)
+if DN_s is None:
+    Rs = mean(r_s)
+else:
+    Rs = DN_s
+if DN_w is None:
+    Rw = mean(r_w)
+else:
+    Rw = DN_w
+if DN_c is None:
+    Rc = mean(r_c)
+else:
+    Rc = DN_c
+	
+if (alpha,S) is (None,None): 
+    Ls = radiance(Rs)
+    Lw = radiance(Rw)
+    Lc = radiance(Rc)
+else:
+    Ls = radiance(Rs,alpha,S)
+    Lw = radiance(Rw,alpha,S)
+    Lc = radiance(Rc,alpha,S)
 
-# radiance
-S = 100
-alpha = 1/4
-AS = (S*alpha)
+Rrs = reflectance(Ls,Lw,Lc)
+turbidity = turbidity(Rrs)
 
-Ls = Rs/AS
-Lw = Rw/AS
-Lc =  Rc/AS
-
-# remote sensing reflectance
-p = 3.14159265/0.18
-
-Rrs= (Lw-(0.028*Ls))/(p*Lc)
-
-# turbidity
-
-turbidity = (22.57*Rrs)/(0.044 - Rrs) 
 print(turbidity)
 
 
